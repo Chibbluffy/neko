@@ -306,3 +306,73 @@ For Netflix: navigate to `https://netflix.com` inside the neko browser, sign in,
 | Netflix says "this browser does not support DRM" | Confirm the Widevine install succeeded: `docker exec <container> ls /usr/lib/chromium/WidevineCdm/` |
 | Build fails at `unsquashfs` | The ChromeOS LaCrOS image is ~500 MB; ensure the instance has at least 2 GB free disk during build |
 | Want to update Widevine version | Pass `--build-arg LACROS_VERSION=<new_version>` and rebuild |
+
+---
+
+## Custom Frontend Deployment (watch.chibbluffy.fyi)
+
+This repo contains a customised chat UI on top of the upstream neko image. Changes include: individual chat bubbles in overlay mode, inline GIF/image rendering, a GIF picker powered by GIPHY, a minimisable floating chat panel, and various icon/UX tweaks.
+
+The built frontend replaces `/var/www` inside the container. The approach is to build a thin custom Docker image that layers on top of the upstream neko image — no volume mounts needed.
+
+### Prerequisites
+
+`client/.env` must contain your GIPHY API key (baked into the JS bundle at build time):
+
+```
+VUE_APP_GIPHY_API_KEY=your_key_here
+```
+
+Get a free key at [developers.giphy.com](https://developers.giphy.com). This file is gitignored via `*.env`.
+
+### 1. Build the frontend
+
+```powershell
+cd client
+npm install       # only needed after dependency changes
+npm run build
+cd ..
+```
+
+Output goes to `client/dist/`.
+
+### 2. Build the custom Docker image
+
+`Dockerfile.custom` at the project root layers the built frontend into the upstream image:
+
+```dockerfile
+FROM ghcr.io/m1k1o/neko/nvidia-google-chrome:latest
+COPY client/dist /var/www
+```
+
+Build it (run from the project root):
+
+```powershell
+docker build -f Dockerfile.custom -t neko-custom .
+```
+
+### 3. Update docker-compose.yaml
+
+Change the `image:` line in your compose file:
+
+```yaml
+services:
+  neko:
+    image: neko-custom   # was: ghcr.io/m1k1o/neko/nvidia-google-chrome:latest
+```
+
+Everything else (GPU config, passwords, WebRTC settings, volumes) stays the same.
+
+### 4. Restart the container
+
+```powershell
+docker compose up -d
+```
+
+### Updating after frontend changes
+
+```powershell
+cd client && npm run build && cd ..
+docker build -f Dockerfile.custom -t neko-custom .
+docker compose up -d
+```
