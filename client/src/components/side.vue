@@ -443,16 +443,16 @@
       }
 
       const onUp = () => {
-        document.removeEventListener('mousemove', onMove)
-        document.removeEventListener('mouseup', onUp)
+        document.removeEventListener('mousemove', onMove, true)
+        document.removeEventListener('mouseup', onUp, true)
         document.body.style.cursor = ''
         ;(document.body.style as any).userSelect = ''
       }
 
       document.body.style.cursor = 'col-resize'
       ;(document.body.style as any).userSelect = 'none'
-      document.addEventListener('mousemove', onMove)
-      document.addEventListener('mouseup', onUp)
+      document.addEventListener('mousemove', onMove, true)
+      document.addEventListener('mouseup', onUp, true)
     }
 
     startDrag(e: MouseEvent) {
@@ -467,14 +467,14 @@
       }
 
       const onUp = () => {
-        document.removeEventListener('mousemove', onMove)
-        document.removeEventListener('mouseup', onUp)
+        document.removeEventListener('mousemove', onMove, true)
+        document.removeEventListener('mouseup', onUp, true)
         ;(document.body.style as any).userSelect = ''
       }
 
       ;(document.body.style as any).userSelect = 'none'
-      document.addEventListener('mousemove', onMove)
-      document.addEventListener('mouseup', onUp)
+      document.addEventListener('mousemove', onMove, true)
+      document.addEventListener('mouseup', onUp, true)
     }
   }
 </script>
