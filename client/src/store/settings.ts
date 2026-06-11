@@ -22,6 +22,7 @@ export const state = () => {
 
     broadcast_is_active: false,
     broadcast_url: '',
+    giphy_api_key: get<string>('giphy_api_key', ''),
   }
 }
 
@@ -64,6 +65,11 @@ export const mutations = mutationTree(state, {
   setBroadcastStatus(state, { url, isActive }) {
     state.broadcast_url = url
     state.broadcast_is_active = isActive
+  },
+
+  setGiphyApiKey(state, value: string) {
+    state.giphy_api_key = value
+    set('giphy_api_key', value)
   },
 })
 

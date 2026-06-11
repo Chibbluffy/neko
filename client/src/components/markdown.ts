@@ -29,6 +29,11 @@ interface MarkdownRules extends Rules<HtmlOutputRule> {
   everyone: Rule
   here: Rule
   link?: Rule
+  image?: Rule
+}
+
+function isImageUrl(href: string): boolean {
+  return /\.(gif|jpe?g|png|webp)([?#].*)?$/i.test(href)
 }
 
 interface HTMLAttributes {
@@ -136,12 +141,11 @@ const rules: MarkdownRules = {
       }
     },
     html(node, output, state) {
-      return htmlTag(
-        'a',
-        output(node.content, state),
-        { href: md.sanitizeUrl(node.target) as string, target: '_blank' },
-        state,
-      )
+      const href = md.sanitizeUrl(node.target) as string
+      if (href && isImageUrl(href)) {
+        return `<img src="${href}" alt="" class="chat-image" loading="lazy" />`
+      }
+      return htmlTag('a', output(node.content, state), { href, target: '_blank' }, state)
     },
   },
   url: {
@@ -158,12 +162,25 @@ const rules: MarkdownRules = {
       }
     },
     html(node, output, state) {
-      return htmlTag(
-        'a',
-        output(node.content, state),
-        { href: md.sanitizeUrl(node.target) as string, target: '_blank' },
-        state,
-      )
+      const href = md.sanitizeUrl(node.target) as string
+      if (href && isImageUrl(href)) {
+        return `<img src="${href}" alt="" class="chat-image" loading="lazy" />`
+      }
+      return htmlTag('a', output(node.content, state), { href, target: '_blank' }, state)
+    },
+  },
+  image: {
+    order: md.defaultRules.strong.order,
+    match: md.inlineRegex(/^!\[([^\]]*)\]\(([^)\s]+)\s*(?:"[^"]*")?\)/),
+    parse(capture) {
+      return {
+        alt: capture[1],
+        target: capture[2],
+      }
+    },
+    html(node) {
+      const src = md.sanitizeUrl(node.target) as string
+      return `<img src="${src}" alt="${md.sanitizeText(node.alt)}" class="chat-image" loading="lazy" />`
     },
   },
   strike: {

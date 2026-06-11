@@ -1,9 +1,9 @@
 <template>
   <div class="header">
-    <a href="https://github.com/m1k1o/neko" title="Github repository" target="_blank" class="neko">
+    <div class="neko">
       <img src="@/assets/images/logo.svg" alt="n.eko" />
       <span><b>n</b>.eko</span>
-    </a>
+    </div>
     <ul class="menu">
       <li>
         <i
@@ -46,7 +46,7 @@
       </li>
       <li>
         <span v-if="showBadge" class="badge">&bull;</span>
-        <i class="fas fa-bars toggle" @click="toggleMenu" />
+        <i class="fas fa-comment-alt toggle" @click="toggleMenu" />
       </li>
     </ul>
   </div>
@@ -67,7 +67,6 @@
       width: 150px;
       margin-left: 20px;
       color: $text-normal;
-      text-decoration: none;
 
       img {
         display: block;

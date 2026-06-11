@@ -1,17 +1,18 @@
-* text=auto
-*.css text
-*.js text
-*.ts text
-*.json text
-*.htm text
-*.html text
-*.env text
-*.xml text
-*.svg text
-*.txt text
-*.ini text
-*.sql text
-*.sh text
+* text=auto eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.vue text eol=lf
+*.json text eol=lf
+*.htm text eol=lf
+*.html text eol=lf
+*.env text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+*.txt text eol=lf
+*.ini text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
 *.png binary
 *.jpg binary
 *.jpeg binary

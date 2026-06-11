@@ -23,5 +23,17 @@ module.exports = {
   },
   devServer: {
     allowedHosts: 'all',
+    proxy: {
+      '/ws': {
+        target: 'http://localhost:8080',
+        ws: true,
+        changeOrigin: true,
+      },
+      '/api': {
+        target: 'http://localhost:8080',
+        ws: true,
+        changeOrigin: true,
+      },
+    },
   },
 }

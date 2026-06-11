@@ -61,6 +61,10 @@
           placeholder="rtmp://a.rtmp.youtube.com/live2/<stream-key>"
         />
       </li>
+      <li>
+        <span>GIPHY API Key</span>
+        <input class="input" v-model="giphy_api_key" placeholder="optional" type="text" autocomplete="off" />
+      </li>
       <li v-if="connected">
         <button @click.stop.prevent="logout">{{ $t('logout') }}</button>
       </li>
@@ -382,6 +386,14 @@
     set keyboard_layout(value: string) {
       this.$accessor.settings.setKeyboardLayout(value)
       this.$accessor.remote.changeKeyboard()
+    }
+
+    get giphy_api_key() {
+      return this.$accessor.settings.giphy_api_key
+    }
+
+    set giphy_api_key(value: string) {
+      this.$accessor.settings.setGiphyApiKey(value)
     }
 
     logout() {

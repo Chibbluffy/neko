@@ -34,9 +34,7 @@ export class NekoClient extends BaseClient implements EventEmitter<NekoEvents> {
 
   init(vue: Vue) {
     const url =
-      process.env.NODE_ENV === 'development'
-        ? `ws://${location.host.split(':')[0]}:${process.env.VUE_APP_SERVER_PORT}/ws`
-        : location.protocol.replace(/^http/, 'ws') + '//' + location.host + location.pathname.replace(/\/$/, '') + '/ws'
+      location.protocol.replace(/^http/, 'ws') + '//' + location.host + location.pathname.replace(/\/$/, '') + '/ws'
 
     this.initWithURL(vue, url)
   }

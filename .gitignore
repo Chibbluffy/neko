@@ -34,6 +34,7 @@ bin
 # Environment files
 *.env
 .env.development
+*.local
 
 # Code Editors
 .idea

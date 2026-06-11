@@ -1,5 +1,9 @@
 <template>
-  <div id="neko" :class="[!videoOnly && side ? 'expanded' : '']">
+  <div
+    id="neko"
+    :class="[!videoOnly && side && !floating && !overlay ? 'expanded' : '']"
+    :style="{ '--chat-width': chatWidth + 'px' }"
+  >
     <template v-if="!$client.supported">
       <neko-unsupported />
     </template>
@@ -31,7 +35,8 @@
           </div>
         </div>
       </main>
-      <neko-side v-if="!videoOnly && side" />
+      <neko-side v-if="!videoOnly && side && !overlay" />
+      <neko-chat-overlay v-if="!videoOnly && overlay" />
       <neko-connect v-if="!connected" />
       <neko-about v-if="about" />
       <notifications
@@ -140,7 +145,7 @@
         height: 100vh;
       }
 
-      .neko-menu {
+      .neko-menu:not(.floating) {
         height: 100vh;
         width: 100% !important;
       }
@@ -153,7 +158,7 @@
         height: 40vh;
       }
 
-      &.expanded .neko-menu {
+      &.expanded .neko-menu:not(.floating) {
         height: 60vh;
         width: 100% !important;
       }
@@ -180,6 +185,7 @@
   import About from '~/components/about.vue'
   import Header from '~/components/header.vue'
   import Unsupported from '~/components/unsupported.vue'
+  import ChatOverlay from '~/components/chat-overlay.vue'
 
   @Component({
     name: 'neko',
@@ -194,6 +200,7 @@
       'neko-about': About,
       'neko-header': Header,
       'neko-unsupported': Unsupported,
+      'neko-chat-overlay': ChatOverlay,
     },
   })
   export default class extends Vue {
@@ -239,13 +246,11 @@
 
     @Watch('side')
     onSide(side: boolean) {
-      if (side) {
-        console.log('side enabled')
-        // scroll to the side
+      if (side && !this.overlay) {
         this.$nextTick(() => {
-          const side = document.querySelector('aside')
-          if (side) {
-            side.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          const aside = document.querySelector('aside')
+          if (aside) {
+            aside.scrollIntoView({ behavior: 'smooth', block: 'start' })
           }
         })
       }
@@ -264,6 +269,18 @@
 
     get side() {
       return this.$accessor.client.side
+    }
+
+    get floating() {
+      return this.$accessor.client.floating
+    }
+
+    get overlay() {
+      return this.$accessor.client.overlay
+    }
+
+    get chatWidth() {
+      return this.$accessor.client.chatWidth
     }
 
     get connected() {

@@ -1,5 +1,5 @@
 <template>
-  <div class="chat">
+  <div class="chat" :class="{ 'bubble-mode': floating }">
     <ul class="chat-history" ref="history" @click="onClick">
       <template v-for="(message, index) in history">
         <li
@@ -44,6 +44,10 @@
       <div class="text-container">
         <textarea ref="input" :placeholder="$t('send_a_message')" @keydown="onKeyDown" v-model="content" />
         <neko-emoji v-if="emoji" @picked="onEmojiPicked" @done="emoji = false" />
+        <div v-if="gif" class="gif-wrap">
+          <neko-gif @picked="onGifPicked" @done="gif = false" />
+        </div>
+        <span class="gif-menu" @click.stop.prevent="onGif">GIF</span>
         <i class="emoji-menu fas fa-laugh" @click.stop.prevent="onEmoji"></i>
       </div>
     </div>
@@ -158,6 +162,15 @@
               word-wrap: break-word;
               overflow-wrap: break-word;
 
+              img.chat-image {
+                display: block;
+                max-width: min(300px, 100%);
+                max-height: 250px;
+                border-radius: 6px;
+                margin-top: 4px;
+                cursor: pointer;
+              }
+
               a {
                 color: $text-link;
               }
@@ -267,6 +280,47 @@
       }
     }
 
+    &.bubble-mode {
+      .chat-history {
+        li.message {
+          background: rgba($background-secondary, 0.7);
+          border-radius: 10px;
+          margin: 3px 6px;
+          padding: 6px 8px;
+          border-top: none;
+
+          .author {
+            width: 24px;
+            height: 24px;
+            margin-right: 7px;
+          }
+
+          .content {
+            .content-head {
+              font-size: 0.75rem;
+              margin-bottom: 1px;
+            }
+
+            ::v-deep .content-body {
+              font-size: 0.85rem;
+              line-height: 1.35;
+            }
+          }
+        }
+
+        li.event {
+          padding: 2px 10px;
+          font-size: 0.75rem;
+          border-top: none;
+        }
+      }
+
+      .chat-send {
+        background: rgba($background-tertiary, 0.6);
+        border-radius: 0 0 8px 8px;
+      }
+    }
+
     .chat-send {
       flex-shrink: 0;
       height: 80px;
@@ -290,6 +344,33 @@
         border-radius: 5px;
         position: relative;
         display: flex;
+
+        .gif-wrap {
+          position: absolute;
+          bottom: 75px;
+          right: 5px;
+          z-index: 10000;
+        }
+
+        .gif-menu {
+          height: 20px;
+          font-size: 11px;
+          font-weight: 700;
+          margin: 9px 2px 0 0;
+          cursor: pointer;
+          color: $text-muted;
+          display: flex;
+          align-items: center;
+          padding: 0 3px;
+          border-radius: 3px;
+          letter-spacing: 0.3px;
+          flex-shrink: 0;
+
+          &:hover {
+            color: $text-normal;
+            background: rgba(255, 255, 255, 0.06);
+          }
+        }
 
         .emoji-menu {
           width: 20px;
@@ -350,6 +431,7 @@
   import Markdown from './markdown'
   import Content from './context.vue'
   import Emoji from './emoji.vue'
+  import GifPicker from './gif-picker.vue'
   import Avatar from './avatar.vue'
 
   const length = 512 // max length of message
@@ -360,6 +442,7 @@
       'neko-markdown': Markdown,
       'neko-context': Content,
       'neko-emoji': Emoji,
+      'neko-gif': GifPicker,
       'neko-avatar': Avatar,
     },
   })
@@ -369,7 +452,12 @@
     @Ref('context') readonly _context!: any
 
     emoji = false
+    gif = false
     content = ''
+
+    get floating() {
+      return this.$accessor.client.floating
+    }
 
     get id() {
       return this.$accessor.user.id
@@ -414,7 +502,19 @@
 
     onEmoji() {
       this.emoji = !this.emoji
+      this.gif = false
       this._input.focus()
+    }
+
+    onGif() {
+      this.gif = !this.gif
+      this.emoji = false
+    }
+
+    onGifPicked(url: string) {
+      if (!url) return
+      this.$accessor.chat.sendMessage(url)
+      this.gif = false
     }
 
     onEmojiPicked(emoji: string) {
